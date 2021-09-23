@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "sucrase": "^3.20.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
+}
