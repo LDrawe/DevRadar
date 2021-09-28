@@ -1,0 +1,20 @@
+*{
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    box-sizing: border-box;
+}
+
+html, body, #root{
+    height: 100%;
+    --font-regular: 'MontSerrat', sans-serif;
+}
+
+body{
+    background-color: #E5E6F0;
+    -webkit-font-smoothing: antialiased;
+}
+
+body, input, button {
+    font-family: var(--font-regular);
+}
