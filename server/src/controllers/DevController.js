@@ -3,8 +3,12 @@ import DevSchema from '../models/Dev';
 
 export default {
 	async index(request, response, next) {
-		const devs = await DevSchema.find();
-		return response.json(devs);
+		try {
+			const devs = await DevSchema.find();
+			return response.json(devs);
+		} catch (error) {
+			next(error);
+		}
 	},
 	async create(request, response, next) {
 		try {
@@ -17,11 +21,11 @@ export default {
 			}
 
 			const { data } = await axios.get(`https://api.github.com/users/${github_username}`);
-			
+
 			if (!data) {
 				return response.status(403).json({ error: "Nenhum desenvolvedor com este usuário foi encontrado" })
 			}
-			
+
 			const location = {
 				type: 'Point',
 				coordinates: [longitude, latitude]
@@ -33,6 +37,18 @@ export default {
 				location
 			});
 			return response.json(dev);
+		} catch (error) {
+			next(error);
+		}
+	},
+	async delete(request, response, next) {
+		try {
+			const { github_username } = request.params;
+			const dev = await DevSchema.findOneAndDelete({ github_username });
+			if (!dev){
+				return response.status(404).json({error: 'Nenhum dev com este usuário'});
+			}
+			return response.send();
 		} catch (error) {
 			next(error);
 		}

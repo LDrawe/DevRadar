@@ -2,9 +2,6 @@ import { useState, useEffect, FormEvent } from 'react';
 import DevCard from './components/DevCard/DevCard';
 import api from './services/api';
 import DevProps from './types/Devs';
-import { SelectedValueProps } from './types/Select';
-import Select from 'react-select';
-import options from './config/TechOptions';
 import Dots from 'react-activity/dist/Dots';
 import 'react-activity/dist/Dots.css';
 import './styles/App.css';
@@ -18,7 +15,7 @@ export default function App() {
 	const [loading, setLoading] = useState(false);
 
 	const [github_username, setGithubUsername] = useState('');
-	const [techs, setTechs] = useState<SelectedValueProps[]>([]);
+	const [techs, setTechs] = useState('');
 
 	const [latitude, setLatitude] = useState(0);
 	const [longitude, setLongitude] = useState(0);
@@ -50,22 +47,18 @@ export default function App() {
 	const handleAddDev = async (e: FormEvent) => {
 		try {
 			e.preventDefault();
-			if (techs.length < 1) {
-				setRequestError('Escolha pelo menos uma tecnologia!');
-				return;
-			}
 			setLoading(true);
 			if (requestError) {
 				setRequestError('');
 			}
 			const { data } = await api.post('/devs', {
 				github_username,
-				techs: techs.map(tech => tech.value).join(', '),
+				techs: techs.split(',').map(tech => tech.trim()),
 				latitude,
 				longitude
 			});
 			setGithubUsername('');
-			setTechs([]);
+			setTechs('');
 
 			setDevs(oldValue => [...oldValue, data]);
 		} catch (error: any) {
@@ -76,10 +69,6 @@ export default function App() {
 		}
 		setLoading(false);
 	}
-
-	const handleChange = (selectedOption: any) => {
-		setTechs(selectedOption);
-	};
 
 	return (
 		<div id="App">
@@ -104,7 +93,13 @@ export default function App() {
 						<label htmlFor="techs">
 							Tecnologias
 						</label>
-						<Select options={options} isMulti onChange={handleChange} />
+						<input
+								name="techs"
+								id="techs"
+								value={techs}
+								onChange={e => setTechs(e.target.value)}
+								required
+							/>
 					</div>
 					<div className="input-group">
 						<div className="input-block">
@@ -149,7 +144,7 @@ export default function App() {
 			<main>
 				<ul>
 					{
-						devs.map(dev => <DevCard key={dev.id} {...dev} />)
+						devs.map(dev => <DevCard key={`${dev.id}`} {...dev} />)
 					}
 				</ul>
 			</main>

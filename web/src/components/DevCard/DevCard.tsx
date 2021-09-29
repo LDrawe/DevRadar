@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import DevProps from '../../types/Devs';
 import axios from 'axios';
 import './DevCard.css';
+
 const DevCard: FC<DevProps> = dev => {
 
     const [data, setData] = useState({
@@ -28,7 +29,7 @@ const DevCard: FC<DevProps> = dev => {
     }, [dev]);
 
     return (
-        <li className="dev-item" key={dev.key} >
+        <li className="dev-item" >
             <header>
                 <img src={`${data.avatar_url}`} alt="Imagem de Perfil" />
                 <div className="user-info">

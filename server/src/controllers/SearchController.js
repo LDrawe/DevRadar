@@ -2,22 +2,25 @@ import DevSchema from '../models/Dev';
 
 export default {
     async index(request, response, next) {
-        const { latitude, longitude, techs } = request.query;
-        const techsArray = techs.split(',').map(tech => tech.trim());
-        const devs = await DevSchema.find({
-            techs: {
-                $in: techsArray
-            },
-            location: {
-                $near: {
-                    $geometry: {
-                        type: 'Point',
-                        coordinates: [longitude, latitude]
-                    },
-                    $maxDistance: 10000
+        try {
+            const { latitude, longitude, techs, distance = 10000 } = request.query;
+            const devs = await DevSchema.find({
+                techs: {
+                    $in: techs,
+                },
+                location: {
+                    $near: {
+                        $geometry: {
+                            type: 'Point',
+                            coordinates: [longitude, latitude]
+                        },
+                        $maxDistance: distance
+                    }
                 }
-            }
-        });
-        return response.json(devs);
+            });
+            return response.json(devs);
+        } catch (error) {
+            next(error);
+        }
     }
 }

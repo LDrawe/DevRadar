@@ -30,6 +30,10 @@ aside form .input-block label {
     font-weight: bold;
 }
 
+aside form .input-block .select {
+    margin-top: 10px;
+}
+
 aside form .input-block input {
     width: 100%;
     height: 32px;
