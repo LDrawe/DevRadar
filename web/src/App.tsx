@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import DevCard from './components/DevCard/DevCard';
+import { disconnect, connect, socket } from './services/socket';
 import api from './services/api';
 import DevProps from './types/Devs';
 import Dots from 'react-activity/dist/Dots';
@@ -22,23 +23,6 @@ export default function App() {
 
 	const [requestError, setRequestError] = useState('');
 
-	useEffect(() => {
-		navigator.geolocation.getCurrentPosition(
-			position => {
-				setLatitude(position.coords.latitude);
-				setLongitude(position.coords.longitude);
-			},
-			error => console.log(error),
-			{
-				timeout: 30000
-			}
-		);
-	}, []);
-
-	useEffect(() => {
-		loadDevs();
-	}, []);
-
 	const loadDevs = async () => {
 		const { data } = await api.get('/devs');
 		setDevs(data);
@@ -53,13 +37,14 @@ export default function App() {
 			}
 			const { data } = await api.post('/devs', {
 				github_username,
-				techs: techs.split(',').map(tech => tech.trim()),
+				techs,
 				latitude,
 				longitude
 			});
+			disconnect();
+			connect(latitude.toString(), longitude.toString(), techs);
 			setGithubUsername('');
 			setTechs('');
-
 			setDevs(oldValue => [...oldValue, data]);
 		} catch (error: any) {
 			if (error.response && error.response.data && error.response.data.error)
@@ -69,6 +54,31 @@ export default function App() {
 		}
 		setLoading(false);
 	}
+
+	useEffect(() => {
+		navigator.geolocation.getCurrentPosition(
+			position => {
+				console.log(typeof (position.coords.latitude));
+				setLatitude(position.coords.latitude);
+				setLongitude(position.coords.longitude);
+			},
+			error => console.log(error),
+			{
+				timeout: 30000
+			}
+		);
+	}, []);
+
+	useEffect(() => {
+		loadDevs();
+	}, []);
+
+	useEffect(() => {
+		socket.on('dev-deleted', dev => setDevs(oldValue => oldValue.filter(oldDev => oldDev.github_username !== dev.github_username)));
+		return () => {
+			socket.off();
+		}
+	}, [devs]);
 
 	return (
 		<div id="App">
@@ -94,12 +104,12 @@ export default function App() {
 							Tecnologias
 						</label>
 						<input
-								name="techs"
-								id="techs"
-								value={techs}
-								onChange={e => setTechs(e.target.value)}
-								required
-							/>
+							name="techs"
+							id="techs"
+							value={techs}
+							onChange={e => setTechs(e.target.value)}
+							required
+						/>
 					</div>
 					<div className="input-group">
 						<div className="input-block">
@@ -109,7 +119,6 @@ export default function App() {
 							<input
 								name="latitude"
 								id="latitude"
-								type="number"
 								value={latitude}
 								onChange={e => setLatitude(Number(e.target.value))}
 								required
@@ -122,9 +131,8 @@ export default function App() {
 							<input
 								name="longitude"
 								id="longitude"
-								type="number"
 								value={longitude}
-								onChange={e => setLatitude(Number(e.target.value))}
+								onChange={e => setLongitude(Number(e.target.value))}
 								required
 							/>
 						</div>
@@ -144,7 +152,7 @@ export default function App() {
 			<main>
 				<ul>
 					{
-						devs.map(dev => <DevCard key={`${dev.id}`} {...dev} />)
+						devs.map(dev => <DevCard key={dev.id} {...dev} />)
 					}
 				</ul>
 			</main>

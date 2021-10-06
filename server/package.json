@@ -1,16 +1,25 @@
 {
   "dependencies": {
     "axios": "^0.21.4",
+    "celebrate": "^15.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "mongoose": "^6.0.7"
+    "mongoose": "^6.0.7",
+    "socket.io": "^4.2.0"
   },
   "devDependencies": {
+    "@sucrase/jest-plugin": "^2.1.1",
+    "jest": "^27.2.4",
     "nodemon": "^2.0.12",
-    "sucrase": "^3.20.1"
+    "socket.io-client": "^4.2.0",
+    "sucrase": "^3.20.1",
+    "supertest": "^6.1.6"
   },
   "scripts": {
-    "dev": "nodemon app.js"
+    "dev": "nodemon server.js",
+    "start": "node -r sucrase/register server.js",
+    "test": "jest"
   },
   "name": "server",
   "version": "1.0.0",

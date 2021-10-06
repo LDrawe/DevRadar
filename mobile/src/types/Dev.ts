@@ -1,14 +1,14 @@
 export default interface DevProps {
 	avatar_url: string,
-	bio: String,
+	bio: string,
 	github_username: string,
 	location: {
-		type: String,
+		type: string,
 		coordinates: number[],
-		_id: String
+		_id: string
 	},
-	name: String,
-	techs: String[],
-	_id: String,
+	name: string,
+	techs: string[],
+	_id: string,
 	__v: Number
 }

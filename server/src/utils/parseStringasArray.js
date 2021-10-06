@@ -1,0 +1,1 @@
+export default string => string.split(',').map(array => array.trim())

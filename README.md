@@ -1,5 +1,5 @@
 <div align="center" id="top"> 
-  <img src="./.github/app.gif" alt="DevRadar" />
+  <img src="./mobile/assets/adaptive-icon.png" alt="DevRadar" width="100px" />
 
   &#xa0;
 
@@ -46,13 +46,17 @@
 
 ## :dart: About ##
 
-Describe your project
+DevRadar is a project built during "Semana OmniStack 10" to find nearby delevopers that works with the technologies that you request. It does this by using the user's location and show developers in a 10km radius using Haversine formula 
 
 ## :sparkles: Features ##
 
 :heavy_check_mark: List Devs;\
 :heavy_check_mark: Add Devs;\
-:heavy_check_mark: Realtime updates;
+:heavy_check_mark: Search Devs;\
+:heavy_check_mark: Delete Dev;\
+:heavy_check_mark: Realtime updates;\
+:heavy_check_mark: Validation;\
+:heavy_check_mark: Tests;
 
 ## :rocket: Technologies ##
 
@@ -60,27 +64,30 @@ The following tools were used in this project:
 
 - [Expo](https://expo.io/)
 - [Node.js](https://nodejs.org/en/)
+- [Socket.io](https://socket.io/)
 - [React](https://pt-br.reactjs.org/)
 - [React Native](https://reactnative.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
 
 ## :white_check_mark: Requirements ##
 
-Before starting :checkered_flag:, you need to have [Git](https://git-scm.com) and [Node](https://nodejs.org/en/) installed.
+Before starting :checkered_flag:, you need to have [Node](https://nodejs.org/) and [Git](https://git-scm.com) (optional) installed.
 
 ## :checkered_flag: Starting ##
 
 ```bash
 # Clone this project
 $ git clone https://github.com/LDrawe/devradar
+## or download and extract it
 
 # Access
 $ cd devradar
 
-# Install dependencies
+# Install dependencies of each folder (server, web, mobile)
+$ cd directory
 $ yarn install
 
-# Run the project
+# Run each module as you please
 $ yarn start
 
 ```

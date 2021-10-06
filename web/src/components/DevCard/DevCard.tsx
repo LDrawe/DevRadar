@@ -31,7 +31,7 @@ const DevCard: FC<DevProps> = dev => {
     return (
         <li className="dev-item" >
             <header>
-                <img src={`${data.avatar_url}`} alt="Imagem de Perfil" />
+                <img src={data.avatar_url} alt="Imagem de Perfil" />
                 <div className="user-info">
                     <strong>
                         {data.name || dev.github_username}
@@ -46,7 +46,7 @@ const DevCard: FC<DevProps> = dev => {
                 {data.bio || 'Este desenvolvedor ainda não possui uma biografia'}
             </p>
 
-            <a href={`https://github/${dev.github_username}`} target="_blank" rel="noreferrer" >
+            <a href={`https://github.com/${dev.github_username}`} target="_blank" rel="noreferrer" >
                 Acessar perfil no GitHub
             </a>
         </li>

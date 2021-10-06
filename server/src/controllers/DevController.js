@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { findConnections, sendMessage } from '../modules/websocket';
 import DevSchema from '../models/Dev';
 
 export default {
@@ -32,11 +33,18 @@ export default {
 			}
 
 			const dev = await DevSchema.create({
-				github_username,
+				github_username: github_username.toLowerCase(),
 				techs,
 				location
 			});
-			return response.json(dev);
+			
+			const sendSocketMessageTo = findConnections(
+				{ latitude, longitude },
+				techs
+			);
+			
+			sendMessage(sendSocketMessageTo, 'new-dev', dev);
+			return response.status(201).json(dev);
 		} catch (error) {
 			next(error);
 		}
@@ -44,10 +52,14 @@ export default {
 	async delete(request, response, next) {
 		try {
 			const { github_username } = request.params;
-			const dev = await DevSchema.findOneAndDelete({ github_username });
-			if (!dev){
-				return response.status(404).json({error: 'Nenhum dev com este usuário'});
+			const dev = await DevSchema.findOneAndDelete({ github_username: github_username.toLowerCase() });
+			
+			if (!dev) {
+				return response.status(404).json({ error: 'Nenhum dev com este usuário' });
 			}
+
+			const sendSocketMessageTo = findConnections();
+			sendMessage(sendSocketMessageTo, 'dev-deleted', dev);
 			return response.send();
 		} catch (error) {
 			next(error);

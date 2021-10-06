@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, TextInput, ActivityIndicator } from 'react-native';
-import MapView, { Region } from 'react-native-maps';
-import { getCurrentPositionAsync, requestForegroundPermissionsAsync, Accuracy } from 'expo-location';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import { MaterialIcons } from '@expo/vector-icons';
+import MapView, { Region, Marker, Callout } from 'react-native-maps';
+import { getCurrentPositionAsync, requestForegroundPermissionsAsync, Accuracy } from 'expo-location';
+
 import Load from '../components/Load';
 import api from '../services/api';
+import { connect, disconnect, socket } from '../services/socket';
 import DevMarker from '../components/DevMarker';
 import DevProps from '../types/Dev';
+
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function Main() {
 
@@ -24,21 +27,25 @@ export default function Main() {
 	const [techs, setTechs] = useState('');
 
 	const [devs, setDevs] = useState<DevProps[]>([]);
+	const [currentLocation, setCurrentLocation] = useState<any>({});
 	const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
-
-	const [errorMsg, setErrorMsg] = useState('');
 
 	async function loadInitialPosition() {
 
 		try {
 			const { status } = await requestForegroundPermissionsAsync();
 			if (status !== 'granted') {
-				setErrorMsg('Permission to access location was denied');
+				Alert.alert('Permissão Negada','Permissão para acessar a localização foi negada');
 				return;
 			}
 
 			const { coords } = await getCurrentPositionAsync({
-				accuracy: Accuracy.Highest
+				accuracy: Accuracy.BestForNavigation
+			});
+
+			setCurrentLocation({
+				latitude: coords.latitude,
+				longitude: coords.longitude,
 			});
 
 			setCurrentRegion({
@@ -64,11 +71,12 @@ export default function Main() {
 				params: {
 					latitude,
 					longitude,
-					techs: techs.split(',').map(tech => tech.trim())
+					techs
 				}
 			});
 			setDevs(data);
 			setLoading(false);
+			setupWebSocket();
 		} catch (error: any) {
 			console.log(error.response);
 		}
@@ -78,9 +86,27 @@ export default function Main() {
 		setCurrentRegion(region);
 	}
 
+	function setupWebSocket() {
+		disconnect();
+		const { latitude, longitude } = currentRegion;
+		connect(
+			latitude.toString(),
+			longitude.toString(),
+			techs
+		);
+	}
+
 	useEffect(() => {
 		loadInitialPosition();
 	}, []);
+
+	useEffect(() => {
+		socket.on('new-dev', dev => setDevs(oldValue => [...oldValue, dev]));
+		socket.on('dev-deleted', dev => setDevs(oldValue => oldValue.filter(oldDev => oldDev._id != dev._id)));
+		return () => {
+			socket.off();
+		}
+	}, [devs]);
 
 	if (!loaded) {
 		return <Load />;
@@ -93,7 +119,20 @@ export default function Main() {
 				initialRegion={currentRegion}
 				onRegionChange={handleRegionChange}
 			>
-				{devs.map(dev => <DevMarker {...dev} key={`${dev.github_username}`} />)}
+				<Marker coordinate={{
+					longitude: currentLocation.longitude,
+					latitude: currentLocation.latitude
+				}}>
+					<MaterialIcons name="location-pin" size={50} color="red" />
+					<Callout style={styles.callout}>
+						<View style={styles.callout}>
+							<Text style={styles.location}>
+								Você está aqui
+							</Text>
+						</View>
+					</Callout>
+				</Marker>
+				{devs.map(dev => <DevMarker key={dev._id} {...dev} />)}
 			</MapView>
 			<View style={styles.searchForm}>
 				<TextInput
@@ -117,26 +156,14 @@ const styles = StyleSheet.create({
 	map: {
 		flex: 1
 	},
-	avatar: {
-		width: 54,
-		height: 54,
-		borderRadius: 4,
-		borderWidth: 4,
-		borderColor: '#FFF',
-	},
 	callout: {
 		width: 260,
 	},
-	devName: {
+	location: {
 		fontWeight: 'bold',
-		fontSize: 16
-	},
-	devBio: {
-		color: '#666',
-		marginTop: 5
-	},
-	devTechs: {
-		marginTop: 5
+		fontSize: 16,
+		color: "#666",
+		textAlign: 'center'
 	},
 	searchForm: {
 		position: 'absolute',
