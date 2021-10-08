@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { findConnections, sendMessage } from '../modules/websocket';
 import DevSchema from '../models/Dev';
+import { connections } from '../modules/websocket';
 
 export default {
 	async index(request, response, next) {
@@ -58,8 +59,7 @@ export default {
 				return response.status(404).json({ error: 'Nenhum dev com este usuário' });
 			}
 
-			const sendSocketMessageTo = findConnections();
-			sendMessage(sendSocketMessageTo, 'dev-deleted', dev);
+			sendMessage(connections, 'dev-deleted', dev);
 			return response.send();
 		} catch (error) {
 			next(error);

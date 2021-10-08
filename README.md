@@ -50,13 +50,13 @@ DevRadar is a project built during "Semana OmniStack 10" to find nearby delevope
 
 ## :sparkles: Features ##
 
-:heavy_check_mark: List Devs;\
-:heavy_check_mark: Add Devs;\
-:heavy_check_mark: Search Devs;\
-:heavy_check_mark: Delete Dev;\
-:heavy_check_mark: Realtime updates;\
-:heavy_check_mark: Validation;\
-:heavy_check_mark: Tests;
+:heavy_check_mark: List Devs\
+:heavy_check_mark: Add Devs\
+:heavy_check_mark: Search Devs\
+:heavy_check_mark: Delete Dev\
+:heavy_check_mark: Realtime updates\
+:heavy_check_mark: Validation\
+:heavy_check_mark: Tests
 
 ## :rocket: Technologies ##
 

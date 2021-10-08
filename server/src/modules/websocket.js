@@ -2,15 +2,15 @@ import { Server } from "socket.io";
 import parseStringasArray from "../utils/parseStringasArray";
 import { getDistanceFromLatLonInKm } from '../utils/calculateDistance';
 
-const connections = [];
+export const connections = [];
 let io;
 
 export function findConnections(coordinates, techs) {
-	// return connections.filter(connection => {
-	// 	return getDistanceFromLatLonInKm(coordinates, connection.coordinates) < 10
-	// 		&& connections.techs.some(item => techs.includes(item))
-	// });
-	return connections;
+	const conexoes = connections.filter(connection =>
+		getDistanceFromLatLonInKm(coordinates, connection.coordinates) < 10
+			&& connection.techs.some(item => techs.includes(item))
+	);
+	return conexoes;
 }
 
 export function sendMessage(to, message, data) {

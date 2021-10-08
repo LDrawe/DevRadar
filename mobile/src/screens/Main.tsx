@@ -9,7 +9,11 @@ import api from '../services/api';
 import { connect, disconnect, socket } from '../services/socket';
 import DevMarker from '../components/DevMarker';
 import DevProps from '../types/Dev';
-
+import {
+	AndroidNotificationPriority,
+	scheduleNotificationAsync,
+	setNotificationHandler
+} from 'expo-notifications';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function Main() {
@@ -35,7 +39,7 @@ export default function Main() {
 		try {
 			const { status } = await requestForegroundPermissionsAsync();
 			if (status !== 'granted') {
-				Alert.alert('Permissão Negada','Permissão para acessar a localização foi negada');
+				Alert.alert('Permissão Negada', 'Permissão para acessar a localização foi negada');
 				return;
 			}
 
@@ -74,6 +78,7 @@ export default function Main() {
 					techs
 				}
 			});
+
 			setDevs(data);
 			setLoading(false);
 			setupWebSocket();
@@ -101,7 +106,28 @@ export default function Main() {
 	}, []);
 
 	useEffect(() => {
-		socket.on('new-dev', dev => setDevs(oldValue => [...oldValue, dev]));
+		socket.on('new-dev', async dev => {
+			setNotificationHandler({
+				handleNotification: async () => ({
+					shouldShowAlert: true,
+					shouldPlaySound: true,
+					shouldSetBadge: true,
+				}),
+			});
+			await scheduleNotificationAsync({
+				content: {
+					title: 'Novo Desenvolvedor!',
+					body: `Novo Desenvolvedor perto de você`,
+					sound: true,
+					priority: AndroidNotificationPriority.HIGH,
+				},
+				trigger: {
+					seconds: 1,
+				}
+			});
+			setDevs(oldValue => [...oldValue, dev]);
+
+		});
 		socket.on('dev-deleted', dev => setDevs(oldValue => oldValue.filter(oldDev => oldDev._id != dev._id)));
 		return () => {
 			socket.off();
